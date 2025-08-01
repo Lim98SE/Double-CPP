@@ -7,7 +7,7 @@ tokens = {"PV": 0, "PC": 1, "SX": 2, "SY": 3, "IX": 4, "IY": 5, "DX": 6, "DY": 7
 
 program = ""
 
-with open(sys[1]) as file:
+with open(sys.argv[1]) as file:
     program = file.read()
 
 mode = "not hex"
