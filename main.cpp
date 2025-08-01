@@ -32,7 +32,7 @@ uint8_t get_from_program() {
     uint32_t last = pointer;
     pointer++;
 
-    if (pointer > program.size()) {
+    if (pointer >= program.size()) {
         running = false;
         return 0;
     }
@@ -80,7 +80,7 @@ int main() {
     srand(time(NULL));
 
     while (running) {
-        if (pointer >= sizeof(program)) { // cut off program if we reach the end
+        if (pointer >= program.size()) { // cut off program if we reach the end
             std::cout << "Exited: ran out of program\n";
             running = false;
             break;
