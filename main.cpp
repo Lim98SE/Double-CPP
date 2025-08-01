@@ -5,30 +5,31 @@
 #include <vector>
 #include <string>
 #include <math.h>
+#include <cstdint>
 
-std::vector<unsigned char> program = {};
+std::vector<uint8_t> program = {};
 std::vector<int> stack = {};
 
-unsigned char memory[0xFF][0xFF];
+uint8_t memory[0xFF][0xFF];
 
-unsigned int pointer = 0;
+uint32_t pointer = 0;
 bool running = true;
 
-unsigned char x_ptr = 0;
-unsigned char y_ptr = 0;
+uint8_t x_ptr = 0;
+uint8_t y_ptr = 0;
 
-unsigned char acc = 0;
+uint8_t acc = 0;
 
-unsigned char get_memory_byte() {
+uint8_t get_memory_byte() {
     return memory[x_ptr][y_ptr];
 }
 
-void set_memory_byte(unsigned char value) {
-    memory[x_ptr][y_ptr] = (unsigned char)value;
+void set_memory_byte(uint8_t value) {
+    memory[x_ptr][y_ptr] = (uint8_t)value;
 }
 
-unsigned char get_from_program() {
-    unsigned int last = pointer;
+uint8_t get_from_program() {
+    uint32_t last = pointer;
     pointer++;
 
     if (pointer > program.size()) {
@@ -40,19 +41,19 @@ unsigned char get_from_program() {
 }
 
 void init_memory() {
-    for (int x = 0; x < 0xFF; x++) {
-        for (int y = 0; y < 0xFF; y++) {
+    for (uint32_t x = 0; x < 0xFF; x++) {
+        for (uint32_t y = 0; y < 0xFF; y++) {
             memory[x][y] = 0;
         }
     }
 }
 
-void stack_push(int value) {
+void stack_push(uint32_t value) {
     stack.push_back(value);
 }
 
-int stack_pop() {
-    int back = stack.back();
+uint32_t stack_pop() {
+    uint32_t back = stack.back();
     stack.pop_back();
     return back;
 }
@@ -85,19 +86,19 @@ int main() {
             break;
         }
 
-        unsigned char opcode = get_from_program();
+        uint8_t opcode = get_from_program();
 
         if (!running) {
             break;
         }
 
         switch (opcode) {
-            case 0: { // print value (PV)
+            case 0: { // pruint32_t value (PV)
                 std::cout << (int)memory[x_ptr][y_ptr] << std::endl;
                 break;
             }
 
-            case 1: { // print character (PC)
+            case 1: { // pruint32_t character (PC)
                 std::cout << memory[x_ptr][y_ptr];
                 break;
             }
@@ -153,7 +154,7 @@ int main() {
             } // restart (RS)
             
             case 12: {
-                unsigned char condition = get_from_program();
+                uint8_t condition = get_from_program();
                 if (get_memory_byte() != condition) {
                     pointer = 0;
                 }
@@ -162,7 +163,7 @@ int main() {
             } // conditional restart (CR)
             
             case 13: {
-                unsigned char inp;
+                uint8_t inp;
                 std::cout << "Char? ";
                 std::cin >> inp;
 
@@ -170,7 +171,7 @@ int main() {
             } // get char (GC)
             
             case 14: {
-                int base_inp;
+                uint32_t base_inp;
                 std::cout << "Num? ";
                 std::cin >> base_inp;
 
@@ -179,7 +180,7 @@ int main() {
                     return 0;
                 }
 
-                set_memory_byte((unsigned char) base_inp);
+                set_memory_byte((uint8_t) base_inp);
 
                 break;
             } // get value (GV)
@@ -195,14 +196,14 @@ int main() {
             } // set value to y (YV)
 
             case 17: {
-                unsigned int to = get_from_program();
+                uint32_t to = get_from_program();
                 pointer = to;
                 break;
             } // jump (JM)
 
             case 18: {
-                unsigned char condition = get_from_program();
-                unsigned char to = get_from_program();
+                uint8_t condition = get_from_program();
+                uint8_t to = get_from_program();
 
                 if (get_memory_byte() != condition) {
                     pointer = to;
@@ -217,14 +218,14 @@ int main() {
             // 1.1 features
 
             case 20: {
-                unsigned char by = get_from_program();
+                uint8_t by = get_from_program();
 
                 pointer += by;
                 break;
             } // jump forward (JF)
 
             case 21: {
-                unsigned char by = get_from_program();
+                uint8_t by = get_from_program();
 
                 pointer -= by;
                 pointer %= program.size();
@@ -232,8 +233,8 @@ int main() {
             } // jump backward (JB)
 
             case 22: {
-                unsigned char condition = get_from_program();
-                unsigned char by = get_from_program();
+                uint8_t condition = get_from_program();
+                uint8_t by = get_from_program();
 
                 if (condition != get_memory_byte()) {
                     pointer += by;
@@ -244,8 +245,8 @@ int main() {
             } // cond. jump forward (CF)
 
             case 23: {
-                unsigned char condition = get_from_program();
-                unsigned char by = get_from_program();
+                uint8_t condition = get_from_program();
+                uint8_t by = get_from_program();
 
                 if (condition != get_memory_byte()) {
                     pointer -= by;
@@ -262,8 +263,8 @@ int main() {
                 std::cout << "Str? ";
                 std::getline(std::cin, inp);
 
-                for (int i = 0; i < inp.length(); i++) {
-                    unsigned char byte = inp[i];
+                for (uint32_t i = 0; i < inp.length(); i++) {
+                    uint8_t byte = inp[i];
                     set_memory_byte(byte);
                     x_ptr ++;
                 }
@@ -276,7 +277,7 @@ int main() {
             // 1.3 features
 
             case 25: {
-                unsigned char address = get_from_program();
+                uint8_t address = get_from_program();
 
                 stack_push(pointer);
                 pointer = (int)address;
@@ -284,14 +285,14 @@ int main() {
             } // jump to subroutine (JR)
 
             case 26: {
-                int to_return_to = stack_pop();
+                uint32_t to_return_to = stack_pop();
                 pointer = to_return_to;
                 break;
             } // return from subroutine (RR)
 
             case 27: {
-                unsigned char condition = get_from_program();
-                unsigned char address = get_from_program();
+                uint8_t condition = get_from_program();
+                uint8_t address = get_from_program();
 
                 if (condition != get_memory_byte()) {
                     stack_push(pointer);
@@ -302,7 +303,7 @@ int main() {
             } // jump to subr. cond. (RC)
 
             case 28: {
-                unsigned char condition = get_from_program();
+                uint8_t condition = get_from_program();
 
                 if (condition != get_memory_byte()) {
                     pointer = stack_pop();
@@ -312,12 +313,12 @@ int main() {
             } // return from subr. cond. (BC)
 
             case 29: {
-                set_memory_byte((unsigned char)(rand() % 0xFF));
+                set_memory_byte((uint8_t)(rand() % 0xFF));
                 break;
             } // random number (RN)
 
             case 31: {
-                unsigned char current = get_from_program();
+                uint8_t current = get_from_program();
 
                 while (current != 0xFF) {
                     set_memory_byte(current);
@@ -331,7 +332,7 @@ int main() {
             } // data block
 
             case 32: {
-                unsigned char current = get_memory_byte();
+                uint8_t current = get_memory_byte();
 
                 do {
                     current = get_memory_byte();
@@ -345,7 +346,7 @@ int main() {
                 } while (current != 0xFF);
 
                 break;
-            } // print string (PS)
+            } // pruint32_t string (PS)
 
             case 33: {
                 acc += get_memory_byte();
